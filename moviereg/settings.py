@@ -82,15 +82,13 @@ WSGI_APPLICATION = 'moviereg.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'movie_tk8b',      # Вкажіть Render DB NAME
-        'USER': 'movie_tk8b_user',      # Вкажіть Render DB USER
-        'PASSWORD': 'eCWkTA2S9AL2tRJfHpOzTGnzveQtpj2j',  # Вкажіть Render DB PASSWORD
-        'HOST': 'dpg-cuc8tc3qf0us73c7h3pg-a',      # Вкажіть Render DB HOST
-        'PORT': '5432',                    # Вкажіть Render DB PORT (зазвичай 5432)
+        'NAME': 'moviereg',         # Назва вашої бази даних
+        'USER': 'admin',            # Ваш користувач
+        'PASSWORD': '1488',    # Ваш пароль
+        'HOST': 'localhost',            # Може бути 'localhost'
+        'PORT': '5432',                 # Стандартний порт для PostgreSQL
     }
 }
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
