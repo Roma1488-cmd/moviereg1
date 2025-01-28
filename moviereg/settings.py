@@ -82,10 +82,10 @@ WSGI_APPLICATION = 'moviereg.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'moviereg',         # Назва вашої бази даних
-        'USER': 'admin',            # Ваш користувач
-        'PASSWORD': '1488',    # Ваш пароль
-        'HOST': '127.0.0.1',            # Може бути 'localhost'
+        'NAME': 'test_sanf',         # Назва вашої бази даних
+        'USER': 'test_sanf_user',            # Ваш користувач
+        'PASSWORD': 'a2STyx7RuwgXyWLMIN2zkow2GucFGkEN',    # Ваш пароль
+        'HOST': 'dpg-cucaqpjqf0us73c8fp1g-a',            # Може бути 'localhost'
         'PORT': '5432',                 # Стандартний порт для PostgreSQL
     }
 }
