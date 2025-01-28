@@ -83,10 +83,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'moviereg',         # Назва вашої бази даних
-        'USER': 'postgres',            # Ваш користувач
+        'USER': 'admin',            # Ваш користувач
         'PASSWORD': '1488',    # Ваш пароль
         'HOST': 'localhost',            # Може бути 'localhost'
-        'PORT': '5176',                 # Стандартний порт для PostgreSQL
+        'PORT': '5432',                 # Стандартний порт для PostgreSQL
     }
 }
 
