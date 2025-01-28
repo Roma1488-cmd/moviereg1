@@ -86,7 +86,7 @@ DATABASES = {
         'USER': 'postgres',            # Ваш користувач
         'PASSWORD': '1488',    # Ваш пароль
         'HOST': 'localhost',            # Може бути 'localhost'
-        'PORT': '5432',                 # Стандартний порт для PostgreSQL
+        'PORT': '5176',                 # Стандартний порт для PostgreSQL
     }
 }
 
