@@ -25,7 +25,12 @@ SECRET_KEY = 'django-insecure-h4_4_5=p*z-i(3$p)kej!91yt*hmvasp6955sl20&42q2#g76t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'moviereg.onrender.com',
+    'localhost',  # Якщо ви працюєте локально
+    '127.0.0.1',  # Якщо ви працюєте локально
+    # інші дозволені хости
+]
 
 
 # Application definition
