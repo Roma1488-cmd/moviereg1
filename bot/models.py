@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils import timezone  # У першу допомогу імпорт додано
+from django.utils import timezone
 from solo.models import SingletonModel  # Переконайтеся, що 'SingletonModel' імпортовано
 
 class BotConfiguration(SingletonModel):
