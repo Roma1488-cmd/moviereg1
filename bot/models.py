@@ -1,5 +1,5 @@
 from django.db import models
-from solo.models import SingletonModel  # Використовується для збереження єдиного екземпляра конфігурації
+from solo.models import SingletonModel
 
 class BotConfiguration(SingletonModel):
     start_message = models.TextField("Start message")
@@ -16,9 +16,3 @@ class BotConfiguration(SingletonModel):
     button_text = models.CharField("Button text", max_length=255, blank=True, null=True)
     button_link = models.URLField("Button link", blank=True, null=True)
     media_id = models.CharField("Media ID", max_length=255, blank=True, null=True)
-
-    class Meta:
-        verbose_name = "Bot Configuration"
-
-    def __str__(self):
-        return self.start_message

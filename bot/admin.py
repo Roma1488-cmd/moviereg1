@@ -19,7 +19,7 @@ class BotConfigurationAdmin(SingletonModelAdmin):
             super().save_model(request, instance, form, change)
             return
 
-        bot = telebot.TeleBot("YOUR_TELEGRAM_BOT_TOKEN")
+        bot = telebot.TeleBot("7283206544:AAHQzhdTykJwtGmqLvkS4tY8uR_QhI45XhQ")
         chat_id = BotConfiguration.get_solo().admin_chat_id
         text = instance.message
         file = instance.media_file
