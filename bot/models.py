@@ -1,21 +1,24 @@
 from django.db import models
+from solo.models import SingletonModel  # Використовується для збереження єдиного екземпляра конфігурації
 
-class DelayMessage(models.Model):
+class BotConfiguration(SingletonModel):
+    start_message = models.TextField("Start message")
+    subscribe_message = models.TextField("Subscribe message")
+    subscribe_button_text = models.CharField("Subscribe button text", max_length=255)
+    subscribe_button_link = models.URLField("Subscribe button link")
+    admin_chat_id = models.CharField("Admin chat id", max_length=255)
+    android_app_link = models.URLField("Android app link")
+    is_send_delay_message = models.BooleanField("Send delay message", default=False)
+    delay_seconds = models.PositiveIntegerField("Delay seconds", default=0)
+    media = models.CharField("Media type", max_length=10, choices=[('photo', 'Photo'), ('video', 'Video')])
+    media_file = models.FileField("Media file", upload_to='media_files')
     message = models.TextField("Message")
-    delay = models.DurationField("Delay")
+    button_text = models.CharField("Button text", max_length=255, blank=True, null=True)
+    button_link = models.URLField("Button link", blank=True, null=True)
+    media_id = models.CharField("Media ID", max_length=255, blank=True, null=True)
 
-class ScheduledMessage(models.Model):
-    message = models.TextField("Message")
-    scheduled_time = models.DateTimeField("Scheduled time")
+    class Meta:
+        verbose_name = "Bot Configuration"
 
-class SubscribeChannel(models.Model):
-    channel_name = models.CharField("Channel Name", max_length=255)
-    subscribe_link = models.URLField("Subscribe Link")
-
-class TelegramUser(models.Model):
-    user_id = models.CharField("User ID", max_length=255)
-    username = models.CharField("Username", max_length=255)
-
-class UserCode(models.Model):
-    code = models.CharField("Code", max_length=255)
-    user = models.ForeignKey(TelegramUser, on_delete=models.CASCADE, related_name="codes")
+    def __str__(self):
+        return self.start_message
