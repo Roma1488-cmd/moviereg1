@@ -38,7 +38,9 @@ class DelayMessageAdmin(admin.ModelAdmin):
     readonly_fields = ('media_id',)
 
     def save_model(self, request, instance, form, change):
-        instance.bot_configuration = BotConfiguration.get_solo()
+        # Установка bot_configuration перед збереженням
+        if not instance.bot_configuration:
+            instance.bot_configuration = BotConfiguration.get_solo()
 
         bot = TeleBot("7283206544:AAHQzhdTykJwtGmqLvkS4tY8uR_QhI45XhQ")
         try:
@@ -66,6 +68,10 @@ class ScheduledMessageAdmin(admin.ModelAdmin):
     readonly_fields = ('media_id',)
 
     def save_model(self, request, instance, form, change):
+        # Установка bot_configuration перед збереженням
+        if not instance.bot_configuration:
+            instance.bot_configuration = BotConfiguration.get_solo()
+
         bot = TeleBot("7283206544:AAHQzhdTykJwtGmqLvkS4tY8uR_QhI45XhQ")
         channel_id = BotConfiguration.get_solo().channel_id
         try:
