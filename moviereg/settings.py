@@ -85,7 +85,7 @@ DATABASES = {
         'NAME': 'moviereg',         # Назва вашої бази даних
         'USER': 'admin',            # Ваш користувач
         'PASSWORD': '1488',    # Ваш пароль
-        'HOST': 'localhost',            # Може бути 'localhost'
+        'HOST': '45.151.236.52',            # Може бути 'localhost'
         'PORT': '5432',                 # Стандартний порт для PostgreSQL
     }
 }
