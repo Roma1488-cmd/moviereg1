@@ -35,28 +35,24 @@ class DelayMessageAdmin(admin.ModelAdmin):
     readonly_fields = ('media_id',)
 
     def save_model(self, request, instance, form, change):
-        # Перевірка наявності BotConfiguration
         bot_configuration = BotConfiguration.get_solo()
-        if not bot_configuration:
-            messages.add_message(request, messages.ERROR, "BotConfiguration не встановлено.")
-            return
-        instance.bot_configuration = bot_configuration
 
         bot = telebot.TeleBot(settings.TELEGRAM_BOT_TOKEN)
         try:
             if instance.message_type == "photo" and instance.media_file:
-                message = bot.send_photo(chat_id=instance.bot_configuration.admin_chat_id, photo=instance.media_file, caption=instance.text)
-                instance.media_id = message.photo[0].file_id
+                message = bot.send_photo(chat_id=bot_configuration.channel_id, photo=instance.media_file,
+                                         caption=instance.text)
             elif instance.message_type == "video" and instance.media_file:
-                message = bot.send_video(chat_id=instance.bot_configuration.admin_chat_id, video=instance.media_file, caption=instance.text)
-                instance.media_id = message.video.file_id
+                message = bot.send_video(chat_id=bot_configuration.channel_id, video=instance.media_file,
+                                         caption=instance.text)
             elif instance.message_type == "text":
-                message = bot.send_message(chat_id=instance.bot_configuration.admin_chat_id, text=instance.text)
+                message = bot.send_message(chat_id=bot_configuration.channel_id, text=instance.text)
             super().save_model(request, instance, form, change)
         except Exception as error:
             messages.add_message(request, messages.ERROR, str(error))
             logger.error(f'Error sending message: {error}')
             return
+
 
 @admin.register(ScheduledMessage)
 class ScheduledMessageAdmin(admin.ModelAdmin):
