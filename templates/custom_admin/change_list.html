@@ -1,1 +1,38 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div class="app-{{ opts.app_label }} module">
+    <form id="changelist-form" method="post">{% csrf_token %}
+    {% if cl.formset %}
+    {{ cl.formset.management_form }}
+    {% endif %}
+    <div class="actions">{{ cl.result_count }} результатов ({{ cl.result_list|length }} на этой странице)</div>
+    <div id="toolbar">
+        {{ result_count }} результатов ({{ result_list|length }} на этой странице)
+    </div>
+    {% if cl.result_count %}
+    <div class="results">
+        <table>
+            <thead>
+                <tr>
+                  {% for column in cl.result_headers %}
+                    <th{{ column.attrs }}>{{ column.text|safe }}</th>
+                  {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+              {% for result in cl.result_list %}
+                <tr class="{% cycle 'row1' 'row2' %}">
+                  {% for item in result.items %}
+                    <td{{ item.attrs }}>{{ item.text|safe }}</td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    </form>
+</div>
+{% endblock %}
 
