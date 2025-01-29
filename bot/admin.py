@@ -11,7 +11,6 @@ from bot.models import BotConfiguration, DelayMessage, ScheduledMessage, Telegra
 
 logger = logging.getLogger(__name__)
 
-
 @admin.register(BotConfiguration)
 class BotConfigurationAdmin(SingletonModelAdmin):
     fieldsets = [
@@ -29,7 +28,6 @@ class BotConfigurationAdmin(SingletonModelAdmin):
             return
 
         super().save_model(request, instance, form, change)
-
 
 @admin.register(DelayMessage)
 class DelayMessageAdmin(admin.ModelAdmin):
@@ -73,12 +71,12 @@ class DelayMessageAdmin(admin.ModelAdmin):
             logger.error(f'Error sending message: {error}')
             return
 
-
 @admin.register(ScheduledMessage)
 class ScheduledMessageAdmin(admin.ModelAdmin):
     list_display = ('message_type', 'text', 'scheduled_time', 'is_send')
     fieldsets = [
-        (None, {"fields": ['bot_configuration', 'message_type', 'text', 'media_file', 'scheduled_time', 'button_text', 'button_link', 'additional_media', 'is_send']}),
+        (None, {"fields": ['bot_configuration', 'message_type', 'text', 'media_file', 'scheduled_time', 'button_text',
+                           'button_link', 'additional_media', 'is_send']}),
     ]
     readonly_fields = ('media_id',)
 
@@ -99,29 +97,31 @@ class ScheduledMessageAdmin(admin.ModelAdmin):
 
         try:
             if instance.message_type == "photo" and instance.media_file:
-                message = bot.send_photo(chat_id=bot_configuration.admin_chat_id, photo=instance.media_file, caption=instance.text, reply_markup=keyboard)
+                message = bot.send_photo(chat_id=bot_configuration.admin_chat_id, photo=instance.media_file,
+                                         caption=instance.text, reply_markup=keyboard)
                 instance.media_id = message.photo[0].file_id
             elif instance.message_type == "video" and instance.media_file:
-                message = bot.send_video(chat_id=bot_configuration.admin_chat_id, video=instance.media_file, caption=instance.text, reply_markup=keyboard)
+                message = bot.send_video(chat_id=bot_configuration.admin_chat_id, video=instance.media_file,
+                                         caption=instance.text, reply_markup=keyboard)
                 instance.media_id = message.video.file_id
             elif instance.message_type == "text":
-                message = bot.send_message(chat_id=bot_configuration.admin_chat_id, text=instance.text, reply_markup=keyboard)
+                message = bot.send_message(chat_id=bot_configuration.admin_chat_id, text=instance.text,
+                                           reply_markup=keyboard)
             super().save_model(request, instance, form, change)
         except Exception as error:
             messages.add_message(request, messages.ERROR, str(error))
             logger.error(f'Error sending message: {error}')
             return
 
-
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ('chat_id', 'username', 'first_name', 'language_code', 'created_at')
-    list_filter = ('created_at', 'language_code')  # Переконайтеся, що поля існують
+    list_filter = ('created_at', 'language_code')
     search_fields = ('chat_id', 'username', 'first_name')
     readonly_fields = ('chat_id', 'username', 'first_name', 'language_code', 'created_at')
 
     def get_urls(self):
-        urls = super(TelegramUserAdmin, self).get_urls()
+        urls = super().get_urls()
         my_urls = [
             path("download/", self.download_users)
         ]
@@ -134,7 +134,7 @@ class TelegramUserAdmin(admin.ModelAdmin):
             content += f"{user.chat_id}\n"
 
         now = datetime.datetime.now()
-        string_date = now.strftime('%Y_%м_%д_%H_%М')
+        string_date = now.strftime('%Y_%m_%d_%H_%M')
         filename = f"{string_date}-botusers-{len(users)}.txt"
 
         response = HttpResponse(content, content_type='text/plain')
