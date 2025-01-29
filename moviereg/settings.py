@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'solo',  # Додайте це до переліку встановлених застосунків
 ]
 
 MIDDLEWARE = [
