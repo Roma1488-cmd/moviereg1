@@ -1,6 +1,14 @@
 from django.db import models
-from django.utils import timezone
+from django.utils import timezone  # У першу допомогу імпорт додано
 from solo.models import SingletonModel  # Переконайтеся, що 'SingletonModel' імпортовано
+
+class Button(models.Model):
+    name = models.CharField(max_length=100)
+    support = models.ForeignKey('self', null=True, blank=True, related_name='support_buttons', on_delete=models.CASCADE)
+    next_support = models.ForeignKey('self', null=True, blank=True, related_name='next_support_buttons', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
 
 class BotConfiguration(SingletonModel):
     channel_id = models.CharField("Channel ID", max_length=255, default="")
@@ -52,11 +60,13 @@ class ScheduledMessage(models.Model):
         return f"{self.message_type} message scheduled for {self.scheduled_time}"
 
 class TelegramUser(models.Model):
-    chat_id = models.CharField("Chat ID", max_length=255)
-    username = models.CharField("Username", max_length=255)
-    first_name = models.CharField("First Name", max_length=255)
-    language_code = models.CharField("Language Code", max_length=10, blank=True, null=True)
-    created_at = models.DateTimeField("Created At", default=timezone.now)
+    chat_id = models.BigIntegerField(unique=True)
+    username = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50)
+    language_code = models.CharField(max_length=10, default="unknown")  # Додано стандартне значення
+    status = models.CharField(max_length=20, default="active")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Telegram User"
