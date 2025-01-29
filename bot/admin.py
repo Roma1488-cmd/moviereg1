@@ -15,7 +15,7 @@ class BotConfigurationAdmin(SingletonModelAdmin):
     ]
 
     def save_model(self, request, instance, form, change):
-        bot = telebot.TeleBot("7283206544:AAHQzhdTykJwtGmqLvkS4tY8uR_QhI45XhQ")
+        bot = telebot.TeleBot(settings.TELEGRAM_BOT_TOKEN)
         admin_chat_id = instance.admin_chat_id
 
         try:
@@ -26,20 +26,23 @@ class BotConfigurationAdmin(SingletonModelAdmin):
 
         super().save_model(request, instance, form, change)
 
-
 @admin.register(DelayMessage)
 class DelayMessageAdmin(admin.ModelAdmin):
     list_display = ('message_type', 'text', 'scheduled_time', 'is_send')
     fieldsets = [
-        (None, {"fields": ['message_type', 'text', 'media_file', 'scheduled_time', 'button_text', 'button_link', 'additional_media', 'is_send']}),
+        (None, {"fields": ['bot_configuration', 'message_type', 'text', 'media_file', 'scheduled_time', 'button_text', 'button_link', 'additional_media', 'is_send']}),
     ]
     readonly_fields = ('media_id',)
 
     def save_model(self, request, instance, form, change):
-        if not instance.bot_configuration:
-            instance.bot_configuration = BotConfiguration.get_solo()
+        # Перевірка наявності BotConfiguration
+        bot_configuration = BotConfiguration.get_solo()
+        if not bot_configuration:
+            messages.add_message(request, messages.ERROR, "BotConfiguration не встановлено.")
+            return
+        instance.bot_configuration = bot_configuration
 
-        bot = telebot.TeleBot("7283206544:AAHQzhdTykJwtGmqLvkS4tY8uR_QhI45XhQ")
+        bot = telebot.TeleBot(settings.TELEGRAM_BOT_TOKEN)
         try:
             if instance.message_type == "photo" and instance.media_file:
                 message = bot.send_photo(chat_id=instance.bot_configuration.admin_chat_id, photo=instance.media_file, caption=instance.text)
@@ -54,21 +57,24 @@ class DelayMessageAdmin(admin.ModelAdmin):
             messages.add_message(request, messages.ERROR, str(error))
             logger.error(f'Error sending message: {error}')
             return
-
 
 @admin.register(ScheduledMessage)
 class ScheduledMessageAdmin(admin.ModelAdmin):
     list_display = ('message_type', 'text', 'scheduled_time', 'is_send')
     fieldsets = [
-        (None, {"fields": ['message_type', 'text', 'media_file', 'scheduled_time', 'button_text', 'button_link', 'additional_media', 'is_send']}),
+        (None, {"fields": ['bot_configuration', 'message_type', 'text', 'media_file', 'scheduled_time', 'button_text', 'button_link', 'additional_media', 'is_send']}),
     ]
     readonly_fields = ('media_id',)
 
     def save_model(self, request, instance, form, change):
-        if not instance.bot_configuration:
-            instance.bot_configuration = BotConfiguration.get_solo()
+        # Перевірка наявності BotConfiguration
+        bot_configuration = BotConfiguration.get_solo()
+        if not bot_configuration:
+            messages.add_message(request, messages.ERROR, "BotConfiguration не встановлено.")
+            return
+        instance.bot_configuration = bot_configuration
 
-        bot = telebot.TeleBot("7283206544:AAHQzhdTykJwtGmqLvkS4tY8uR_QhI45XhQ")
+        bot = telebot.TeleBot(settings.TELEGRAM_BOT_TOKEN)
         try:
             if instance.message_type == "photo" and instance.media_file:
                 message = bot.send_photo(chat_id=instance.bot_configuration.admin_chat_id, photo=instance.media_file, caption=instance.text)
@@ -83,7 +89,6 @@ class ScheduledMessageAdmin(admin.ModelAdmin):
             messages.add_message(request, messages.ERROR, str(error))
             logger.error(f'Error sending message: {error}')
             return
-
 
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
@@ -92,7 +97,7 @@ class TelegramUserAdmin(admin.ModelAdmin):
     search_fields = ('chat_id', 'username', 'first_name')
     readonly_fields = ('chat_id', 'username', 'first_name', 'language_code', 'created_at')
 
-bot = telebot.TeleBot("7283206544:AAHQzhdTykJwtGmqLvkS4tY8uR_QhI45XhQ")
+bot = telebot.TeleBot(settings.TELEGRAM_BOT_TOKEN)
 
 @bot.message_handler(commands=['start'])
 def start(message):
