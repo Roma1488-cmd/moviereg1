@@ -2,9 +2,12 @@ import telebot
 from django.conf import settings
 from django.contrib import admin
 from django.contrib import messages
+from django.http import HttpResponse
+from django.urls import path
 from solo.admin import SingletonModelAdmin
 import logging
-from bot.models import BotConfiguration, DelayMessage, ScheduledMessage, TelegramUser
+import datetime
+from bot.models import BotConfiguration, DelayMessage, ScheduledMessage, TelegramUser, Button
 
 logger = logging.getLogger(__name__)
 
@@ -117,9 +120,39 @@ class ScheduledMessageAdmin(admin.ModelAdmin):
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ('chat_id', 'username', 'first_name', 'language_code', 'created_at')
-    list_filter = ('created_at', 'language_code')
+    list_filter = ('status', 'created_at')
     search_fields = ('chat_id', 'username', 'first_name')
-    readonly_fields = ('chat_id', 'username', 'first_name', 'language_code', 'created_at')
+    readonly_fields = ('status', 'created_at', 'updated_at')
+    change_list_template = "custom_admin/change_list.html"
+
+    def get_urls(self):
+        urls = super(TelegramUserAdmin, self).get_urls()
+        my_urls = [
+            path("download/", self.download_users)
+        ]
+        return my_urls + urls
+
+    def download_users(self, request):
+        content = ""
+        users = TelegramUser.objects.all()
+        for user in users:
+            content += f"{user.chat_id}\n"
+
+        now = datetime.datetime.now()
+        string_date = now.strftime('%Y_%m_%d_%H_%M')
+        filename = f"{string_date}-botusers-{len(users)}.txt"
+
+        response = HttpResponse(content, content_type='text/plain')
+        response['Content-Disposition'] = f"attachment; filename={filename}"
+        return response
+
+
+class ButtonInline(admin.TabularInline):
+    fields = ('name', 'next_support')
+    autocomplete_fields = ('support', 'next_support')
+    fk_name = 'support'
+    model = Button
+    extra = 1
 
 
 bot = telebot.TeleBot(settings.TELEGRAM_BOT_TOKEN)
