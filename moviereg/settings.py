@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-
+import dj_database_url
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -80,15 +80,11 @@ WSGI_APPLICATION = 'moviereg.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'moviereg',         # Назва вашої бази даних
-        'USER': 'admin',            # Ваш користувач
-        'PASSWORD': '1488',    # Ваш пароль
-        'HOST': '45.151.236.52',            # Може бути 'localhost'
-        'PORT': '5432',                 # Стандартний порт для PostgreSQL
-    }
+    'default': dj_database_url.config(
+        default='postgresql://postgres.nvqpnlylcwqqierwmnmh:[1488Roma1488]@aws-0-eu-central-1.pooler.supabase.com:6543/postgres'
+    )
 }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
