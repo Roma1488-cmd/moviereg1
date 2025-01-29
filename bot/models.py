@@ -60,13 +60,11 @@ class ScheduledMessage(models.Model):
         return f"{self.message_type} message scheduled for {self.scheduled_time}"
 
 class TelegramUser(models.Model):
-    chat_id = models.BigIntegerField(unique=True)
-    username = models.CharField(max_length=50)
-    first_name = models.CharField(max_length=50)
-    language_code = models.CharField(max_length=10, default="unknown")  # Додано стандартне значення
-    status = models.CharField(max_length=20, default="active")
+    chat_id = models.CharField(max_length=100, unique=True)  # Має бути унікальним
+    username = models.CharField(max_length=100, null=True, blank=True)  # Дозволити NULL
+    first_name = models.CharField(max_length=100)
+    language_code = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
 
     class Meta:
