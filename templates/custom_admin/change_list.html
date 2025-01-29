@@ -1,7 +1,7 @@
 {% extends "admin/change_list.html" %}
 
 {% load static %}
-{% load i18n %}  <!-- Завантажуємо тег trans -->
+{% load i18n %}
 
 {% block extrastyle %}
 {{ block.super }}
@@ -10,42 +10,26 @@
 {% endblock %}
 
 {% block content %}
-<div class="app-{{ opts.app_label }} model-{{ opts.model_name }}">
-    <div class="title">{{ opts.app_label }}: {{ opts.verbose_name_plural }}</div>
-    <div class="module">
-        <form id="changelist-form" method="post">
-            {% csrf_token %}
-            <div class="actions">
-                <input type="submit" value="{% trans 'Сохранить измененные' %}">
-            </div>
-            {% if cl.formset %}
-                {{ cl.formset.management_form }}
-            {% endif %}
-            {% if cl.result_count %}
+<div class="app-{{ opts.app_label }} {{ opts.model_name }}">
+    <h1>{{ title }}</h1>
+    <div class="module" id="changelist">
+        {% if cl.formset %}
+            <form method="post" action="{% url cl.opts.admin_url %}{% if cl.is_popup %}?_popup=1{% endif %}">
+                {% csrf_token %}
+                <div class="actions">
+                    <input type="submit" value="{% trans 'Save changes' %}">
+                </div>
+                {% if cl.result_count %}
                 <div class="results">
-                    <table cellspacing="0" cellpadding="0">
-                        <thead>
-                            <tr>
-                                {% for header in cl.result_headers %}
-                                <th{% if header.attr %} {{ header.attr }}{% endif %}>{{ header.text|safe }}</th>
-                                {% endfor %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for result in cl.result_list %}
-                            <tr class="{% cycle 'row1' 'row2' %}">
-                                {% for item in result.items %}
-                                <td{% if item.attr %} {{ item.attr }}{% endif %}>{{ item.text|safe }}</td>
-                                {% endfor %}
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    {{ cl.result_list }}
                 </div>
                 {% else %}
                 <p>{% trans "No entries found" %}.</p>
                 {% endif %}
-        </form>
+            </form>
+        {% else %}
+        <p>{% trans "No entries found" %}.</p>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
