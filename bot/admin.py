@@ -108,9 +108,8 @@ class ScheduledMessageAdmin(admin.ModelAdmin):
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ('chat_id', 'username', 'first_name', 'language_code', 'created_at')
-    list_filter = ('created_at', 'language_code')
-    search_fields = ('chat_id', 'username', 'first_name')
-    readonly_fields = ('chat_id', 'username', 'first_name', 'language_code', 'created_at')
+    fields = ('chat_id', 'username', 'first_name', 'language_code', 'status')  # Додайте потрібні поля
+    readonly_fields = ('created_at',)  # Тільки для нередагованих полів
 
     def get_urls(self):
         urls = super().get_urls()

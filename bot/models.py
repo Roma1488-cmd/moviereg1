@@ -91,28 +91,11 @@ class ScheduledMessage(models.Model):
 
 class TelegramUser(models.Model):
     chat_id = models.BigIntegerField(unique=True)
-    username = models.CharField(
-        max_length=50,
-        null=True,
-        blank=True  # Дозволяємо пусті значення
-    )
-    first_name = models.CharField(
-        max_length=50,
-        null=True,
-        blank=True  # Дозволяємо пусті значення
-    )
-    language_code = models.CharField(
-        max_length=10,
-        default="",
-        blank=True  # Замість "unknown" — пустий рядок
-    )
-    status = models.CharField(
-        max_length=20,
-        default="active",
-        choices=[('active', 'Active'), ('inactive', 'Inactive')]  # Додано вибіркові значення
-    )
+    username = models.CharField(max_length=50, blank=True, null=True)
+    first_name = models.CharField(max_length=50, blank=True, null=True)
+    language_code = models.CharField(max_length=10, default="", blank=True)
+    status = models.CharField(max_length=20, default="active")
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Telegram User"
