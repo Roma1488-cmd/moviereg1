@@ -78,8 +78,7 @@ class DelayMessageAdmin(admin.ModelAdmin):
 class ScheduledMessageAdmin(admin.ModelAdmin):
     list_display = ('message_type', 'text', 'scheduled_time', 'is_send')
     fieldsets = [
-        (None, {"fields": ['bot_configuration', 'message_type', 'text', 'media_file', 'scheduled_time', 'button_text',
-                           'button_link', 'additional_media', 'is_send']}),
+        (None, {"fields": ['bot_configuration', 'message_type', 'text', 'media_file', 'scheduled_time', 'button_text', 'button_link', 'additional_media', 'is_send']}),
     ]
     readonly_fields = ('media_id',)
 
@@ -100,21 +99,19 @@ class ScheduledMessageAdmin(admin.ModelAdmin):
 
         try:
             if instance.message_type == "photo" and instance.media_file:
-                message = bot.send_photo(chat_id=bot_configuration.admin_chat_id, photo=instance.media_file,
-                                         caption=instance.text, reply_markup=keyboard)
+                message = bot.send_photo(chat_id=bot_configuration.admin_chat_id, photo=instance.media_file, caption=instance.text, reply_markup=keyboard)
                 instance.media_id = message.photo[0].file_id
             elif instance.message_type == "video" and instance.media_file:
-                message = bot.send_video(chat_id=bot_configuration.admin_chat_id, video=instance.media_file,
-                                         caption=instance.text, reply_markup=keyboard)
+                message = bot.send_video(chat_id=bot_configuration.admin_chat_id, video=instance.media_file, caption=instance.text, reply_markup=keyboard)
                 instance.media_id = message.video.file_id
             elif instance.message_type == "text":
-                message = bot.send_message(chat_id=bot_configuration.admin_chat_id, text=instance.text,
-                                           reply_markup=keyboard)
+                message = bot.send_message(chat_id=bot_configuration.admin_chat_id, text=instance.text, reply_markup=keyboard)
             super().save_model(request, instance, form, change)
         except Exception as error:
             messages.add_message(request, messages.ERROR, str(error))
             logger.error(f'Error sending message: {error}')
             return
+
 
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
