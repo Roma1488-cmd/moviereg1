@@ -116,13 +116,12 @@ class ScheduledMessageAdmin(admin.ModelAdmin):
             logger.error(f'Error sending message: {error}')
             return
 
-
 @admin.register(TelegramUser)
 class TelegramUserAdmin(admin.ModelAdmin):
     list_display = ('chat_id', 'username', 'first_name', 'language_code', 'created_at')
     list_filter = ('status', 'created_at')  # Переконайся, що status є полем у моделі
     search_fields = ('chat_id', 'username', 'first_name')
-    readonly_fields = ('status', 'created_at', 'updated_at')  # Переконайся, що ці поля існують у моделі
+    readonly_fields = ()  # Зробимо всі поля активними
     change_list_template = "custom_admin/change_list.html"
 
     def get_urls(self):
@@ -139,13 +138,12 @@ class TelegramUserAdmin(admin.ModelAdmin):
             content += f"{user.chat_id}\n"
 
         now = datetime.datetime.now()
-        string_date = now.strftime('%Y_%m_%d_%H_%М')
+        string_date = now.strftime('%Y_%м_%д_%H_%М')
         filename = f"{string_date}-botusers-{len(users)}.txt"
 
         response = HttpResponse(content, content_type='text/plain')
         response['Content-Disposition'] = f"attachment; filename={filename}"
         return response
-
 
 class ButtonInline(admin.TabularInline):
     fields = ('name', 'next_support')
@@ -154,9 +152,7 @@ class ButtonInline(admin.TabularInline):
     model = Button
     extra = 1
 
-
 bot = telebot.TeleBot(settings.TELEGRAM_BOT_TOKEN)
-
 
 @bot.message_handler(commands=['start'])
 def start(message):
