@@ -104,7 +104,6 @@ class ScheduledMessage(models.Model):
         super().save(*args, **kwargs)
         self.schedule()
 
-
 class TelegramUser(models.Model):
     chat_id = models.BigIntegerField(unique=True)
     username = models.CharField(max_length=255, blank=True, null=True)

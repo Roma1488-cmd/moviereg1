@@ -14,6 +14,8 @@ def start(message):
     first_name = message.from_user.first_name
     language_code = message.from_user.language_code
 
+    logger.info(f"Received /start command from {username} ({chat_id})")
+
     try:
         TelegramUser.objects.update_or_create(
             chat_id=chat_id,
