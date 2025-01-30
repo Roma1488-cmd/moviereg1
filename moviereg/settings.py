@@ -1,3 +1,5 @@
+import os  # Додайте цей рядок на початку файлу
+from pathlib import Path
 import dj_database_url
 from pathlib import Path
 
@@ -12,6 +14,10 @@ SECRET_KEY = 'django-insecure-h4_4_5=p*z-i(3$p)kej!91yt*hmvasp6955sl20&42q2#g76t
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_TIMEZONE = "Europe/Kyiv"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
 
 ALLOWED_HOSTS = [
     'moviereg.onrender.com',
