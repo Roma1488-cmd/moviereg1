@@ -7,7 +7,7 @@ from django.urls import path
 from solo.admin import SingletonModelAdmin
 import logging
 import datetime
-from django.utils import timezone  # Додано імпорт timezone
+from django.utils import timezone
 from bot.models import BotConfiguration, DelayMessage, ScheduledMessage, TelegramUser, Button
 
 logger = logging.getLogger(__name__)
@@ -72,7 +72,6 @@ class DelayMessageAdmin(admin.ModelAdmin):
             logger.error(f'Error sending message: {error}')
             return
 
-
 @admin.register(ScheduledMessage)
 class ScheduledMessageAdmin(admin.ModelAdmin):
     list_display = ('message_type', 'text', 'scheduled_time', 'is_send')
@@ -91,6 +90,7 @@ class ScheduledMessageAdmin(admin.ModelAdmin):
     readonly_fields = ('media_id',)
 
     def save_model(self, request, instance, form, change):
+        logger.info(f"Saving model for ScheduledMessage {instance.id}")
         # Отримуємо конфігурацію бота
         bot_configuration = BotConfiguration.get_solo()
         if not bot_configuration:
@@ -107,6 +107,7 @@ class ScheduledMessageAdmin(admin.ModelAdmin):
             self.schedule_message(instance)
 
     def schedule_message(self, instance):
+        logger.info(f"Scheduling message {instance.id} for {instance.scheduled_time}")
         """Плануємо відправку через Celery/APScheduler"""
         from .tasks import send_scheduled_message  # Імпортуємо асинхронне завдання
 
