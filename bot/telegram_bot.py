@@ -27,6 +27,7 @@ def start(message):
         logger.error(f"Error saving user {username} ({chat_id}): {str(e)}")
 
 def start_bot():
+    logger.info("Starting bot polling...")
     bot.polling(none_stop=True)
 
 if __name__ == "__main__":
