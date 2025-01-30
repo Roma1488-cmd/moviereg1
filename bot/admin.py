@@ -7,6 +7,7 @@ from django.urls import path
 from solo.admin import SingletonModelAdmin
 import logging
 import datetime
+from django.utils import timezone  # Додано імпорт timezone
 from bot.models import BotConfiguration, DelayMessage, ScheduledMessage, TelegramUser, Button
 
 logger = logging.getLogger(__name__)
