@@ -20,12 +20,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 TIME_ZONE = 'Europe/Kiev'  # Встановіть ваш часовий пояс
 USE_TZ = True
 
-ALLOWED_HOSTS = [
-    'moviereg.onrender.com',
-    'localhost',
-    '127.0.0.1',
-]
-
+ALLOWED_HOSTS = ['45.132.107.197']
 
 # Application definition
 INSTALLED_APPS = [
