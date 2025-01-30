@@ -1,7 +1,8 @@
-import os  # Додайте цей рядок на початку файлу
+import os
 from pathlib import Path
 import dj_database_url
-from pathlib import Path
+import os
+os.environ['REDIS_URL'] = 'redis://red-cudf4lij1k6c73cmv5mg:6379/0'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -15,15 +16,24 @@ SECRET_KEY = 'django-insecure-h4_4_5=p*z-i(3$p)kej!91yt*hmvasp6955sl20&42q2#g76t
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
-CELERY_TIMEZONE = "Europe/Kyiv"
-CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+# Налаштування Celery для використання Redis на Render
+# settings.py
+
+CELERY_BROKER_URL = 'redis://red-cudf4lij1k6c73cmv5mg:6379/0'
+CELERY_RESULT_BACKEND = 'redis://red-cudf4lij1k6c73cmv5mg:6379/0'
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/Kyiv'
+
 
 ALLOWED_HOSTS = [
     'moviereg.onrender.com',
     'localhost',
     '127.0.0.1',
 ]
+
 
 # Application definition
 INSTALLED_APPS = [
