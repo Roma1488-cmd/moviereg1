@@ -1,7 +1,7 @@
+import logging
 import telebot
 from django.conf import settings
 from .models import TelegramUser
-import logging
 
 logger = logging.getLogger(__name__)
 
