@@ -69,6 +69,7 @@ class DelayMessage(BaseMessage):
         return f"{self.message_type} message (delay) scheduled for {self.scheduled_time}"
 
 class ScheduledMessage(models.Model):
+
     bot_configuration = models.ForeignKey(BotConfiguration, on_delete=models.CASCADE, related_name="scheduled_messages")
     message_type = models.CharField("Message Type", max_length=5, choices=[('text', 'Text'), ('photo', 'Photo'), ('video', 'Video')])
     text = models.TextField("Text", blank=True, null=True)
@@ -76,6 +77,8 @@ class ScheduledMessage(models.Model):
     scheduled_time = models.DateTimeField("Scheduled Time", default=timezone.now)
     is_send = models.BooleanField("Send", default=False)
     media_id = models.CharField("Media ID", max_length=255, blank=True, null=True)
+    button_text = models.CharField(max_length=100, blank=True, null=True)
+    button_link = models.URLField(blank=True, null=True)
 
     # Додайте ці поля, якщо вони потрібні
     button_text = models.CharField("Button Text", max_length=100, blank=True, null=True)
