@@ -69,18 +69,19 @@ class DelayMessage(BaseMessage):
         return f"{self.message_type} message (delay) scheduled for {self.scheduled_time}"
 
 class ScheduledMessage(models.Model):
+    MESSAGE_TYPES = (
+        ('text', 'Text'),
+        ('photo', 'Photo'),
+        ('video', 'Video'),
+    )
 
     bot_configuration = models.ForeignKey(BotConfiguration, on_delete=models.CASCADE, related_name="scheduled_messages")
-    message_type = models.CharField("Message Type", max_length=5, choices=[('text', 'Text'), ('photo', 'Photo'), ('video', 'Video')])
+    message_type = models.CharField("Message Type", max_length=5, choices=MESSAGE_TYPES)
     text = models.TextField("Text", blank=True, null=True)
     media_file = models.FileField("Media File", upload_to='media_files', blank=True, null=True)
     scheduled_time = models.DateTimeField("Scheduled Time", default=timezone.now)
     is_send = models.BooleanField("Send", default=False)
     media_id = models.CharField("Media ID", max_length=255, blank=True, null=True)
-    button_text = models.CharField(max_length=100, blank=True, null=True)
-    button_link = models.URLField(blank=True, null=True)
-
-    # Додайте ці поля, якщо вони потрібні
     button_text = models.CharField("Button Text", max_length=100, blank=True, null=True)
     button_link = models.URLField("Button Link", blank=True, null=True)
     additional_media = models.FileField("Additional Media", upload_to='media_files', blank=True, null=True)
@@ -91,6 +92,18 @@ class ScheduledMessage(models.Model):
 
     def __str__(self):
         return f"{self.message_type} message scheduled for {self.scheduled_time}"
+
+    def schedule(self):
+        from .tasks import send_scheduled_message
+        send_scheduled_message.apply_async(
+            args=[self.id],
+            eta=self.scheduled_time
+        )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.schedule()
+
 
 class TelegramUser(models.Model):
     chat_id = models.BigIntegerField(unique=True)
