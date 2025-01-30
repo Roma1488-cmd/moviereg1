@@ -1,32 +1,21 @@
-import os
 from pathlib import Path
-import dj_database_url
 import os
-os.environ['REDIS_URL'] = 'redis://red-cudf4lij1k6c73cmv5mg:6379/0'
+import dj_database_url
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-h4_4_5=p*z-i(3$p)kej!91yt*hmvasp6955sl20&42q2#g76t'
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# Налаштування Celery для використання Redis на Render
-# settings.py
+# Налаштування Celery
+REDIS_URL = os.getenv('REDIS_URL', 'redis://red-cudf4lij1k6c73cmv5mg:6379/0')
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
 
-CELERY_BROKER_URL = 'redis://red-cudf4lij1k6c73cmv5mg:6379/0'
-CELERY_RESULT_BACKEND = 'redis://red-cudf4lij1k6c73cmv5mg:6379/0'
-
+CELERY_TIMEZONE = "Europe/Kyiv"
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Europe/Kyiv'
-
 
 ALLOWED_HOSTS = [
     'moviereg.onrender.com',
