@@ -1,10 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse
 
-# Головна сторінка адмін панелі
-def dashboard(request):
-    return render(request, 'bot/dashboard.html')
-
 # Управління повідомленнями
 def message_list(request):
     # Отримання списку повідомлень з бази

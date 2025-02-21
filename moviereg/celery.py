@@ -1,35 +1,26 @@
 import os
 from celery import Celery
 from dotenv import load_dotenv
-import ssl
 
 load_dotenv()  # Завантаження змінних середовища з файлу .env
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'moviereg.settings')
 app = Celery('moviereg')
 
-# Переконайтеся, що змінна середовища встановлена
-redis_url = os.getenv('REDIS_URL')
-if not redis_url:
-    raise ValueError("REDIS_URL не налаштована у середовищі")
+# Переконайтеся, що змінна середовища налаштована
+rabbitmq_url = os.getenv('RABBITMQ_URL')
+postgres_url = os.getenv('DATABASE_URL')
 
-# Налаштування Celery для використання Redis як брокера та бекенду з параметрами SSL
-ssl_context = ssl.create_default_context()
-ssl_context.check_hostname = False
-ssl_context.verify_mode = ssl.CERT_NONE
+if not rabbitmq_url:
+    raise ValueError("RABBITMQ_URL не налаштована у середовищі")
 
-ssl_options = {
-    'ssl_cert_reqs': ssl.CERT_NONE
-}
+if not postgres_url:
+    raise ValueError("DATABASE_URL не налаштована у середовищі")
+
+# Налаштування Celery для використання RabbitMQ як брокера та PostgreSQL як бекенду
 app.conf.update(
-    broker_url=redis_url,
-    result_backend=redis_url,
-    broker_use_ssl={
-        'ssl_cert_reqs': ssl.CERT_NONE
-    },
-    redis_backend_use_ssl={
-        'ssl_cert_reqs': ssl.CERT_NONE
-    },
+    broker_url=rabbitmq_url,
+    result_backend=postgres_url,
     broker_connection_retry_on_startup=True
 )
 

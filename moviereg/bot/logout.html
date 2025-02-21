@@ -1,0 +1,22 @@
+<!-- /root/PythonProject7/bot/templates/bot/logout.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Logout</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Logout Page</h1>
+        <nav>
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'home' %}">Home</a>
+        </nav>
+    </header>
+    <main>
+        <p>You have been logged out successfully!</p>
+    </main>
+</body>
+</html>

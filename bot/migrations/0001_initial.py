@@ -13,43 +13,46 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='DelayMessage',
+            name='BotConfiguration',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('message', models.TextField(verbose_name='Message')),
-                ('delay', models.DurationField(verbose_name='Delay')),
+                ('channel_id', models.CharField(default='-1002393997593', help_text='ID каналу з мінусом на початку', max_length=255, verbose_name='Channel ID')),
+                ('admin_chat_id', models.BigIntegerField(default=1850284945, verbose_name='Admin Chat ID')),
+                ('chat_id', models.CharField(blank=True, max_length=100, null=True)),
             ],
-        ),
-        migrations.CreateModel(
-            name='ScheduledMessage',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('message', models.TextField(verbose_name='Message')),
-                ('scheduled_time', models.DateTimeField(verbose_name='Scheduled time')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='SubscribeChannel',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('channel_name', models.CharField(max_length=255, verbose_name='Channel Name')),
-                ('subscribe_link', models.URLField(verbose_name='Subscribe Link')),
-            ],
+            options={
+                'verbose_name': 'Bot Configuration',
+                'verbose_name_plural': 'Bot Configurations',
+            },
         ),
         migrations.CreateModel(
             name='TelegramUser',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('user_id', models.CharField(max_length=255, verbose_name='User ID')),
-                ('username', models.CharField(max_length=255, verbose_name='Username')),
+                ('chat_id', models.CharField(max_length=255, unique=True)),
+                ('username', models.CharField(blank=True, max_length=255, null=True)),
+                ('first_name', models.CharField(blank=True, max_length=255, null=True)),
+                ('last_name', models.CharField(blank=True, max_length=255, null=True)),
+                ('language_code', models.CharField(blank=True, max_length=10, null=True)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('is_active', models.BooleanField(default=True)),
             ],
+            options={
+                'verbose_name': 'Telegram User',
+                'verbose_name_plural': 'Telegram Users',
+            },
         ),
         migrations.CreateModel(
-            name='UserCode',
+            name='Button',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(max_length=255, verbose_name='Code')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='codes', to='bot.telegramuser')),
+                ('key', models.CharField(max_length=255, unique=True)),
+                ('text', models.CharField(max_length=255)),
+                ('content', models.TextField(blank=True)),
+                ('button_type', models.CharField(choices=[('text', 'Text'), ('link', 'Link')], default='text', max_length=10)),
+                ('message_text', models.TextField(blank=True, null=True)),
+                ('media_file', models.FileField(blank=True, null=True, upload_to='button_media/')),
+                ('previous', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='bot.button')),
             ],
         ),
     ]

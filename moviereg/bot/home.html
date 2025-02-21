@@ -1,0 +1,24 @@
+<!-- /root/PythonProject7/bot/templates/bot/home.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Welcome to Home Page</h1>
+        <nav>
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+        </nav>
+    </header>
+    <main>
+        <p>This is the home page of your project.</p>
+    </main>
+    <footer>
+        <p>&copy; 2025 Your Company Name. All rights reserved.</p>
+    </footer>
+</body>
+</html>

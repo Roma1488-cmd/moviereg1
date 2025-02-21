@@ -1,0 +1,22 @@
+<!-- /root/PythonProject7/bot/templates/bot/settings.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Settings</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <h1>Settings Page</h1>
+        <nav>
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'home' %}">Home</a>
+        </nav>
+    </header>
+    <main>
+        <p>Welcome to the settings page!</p>
+    </main>
+</body>
+</html>

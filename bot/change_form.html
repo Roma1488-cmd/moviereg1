@@ -1,0 +1,26 @@
+{% extends "admin/change_form.html" %}
+
+{% load static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'custom_admin/css/custom.css' %}">
+{% endblock %}
+
+{% block content %}
+{{ block.super }}
+
+<div id="post-buttons">
+    <div class="button-field">
+        <label for="button-text-1">Button Text:</label>
+        <input type="text" id="button-text-1" name="button-text">
+        <label for="button-link-1">Button Link:</label>
+        <input type="text" id="button-link-1" name="button-link">
+    </div>
+</div>
+<a href="#" id="add-button">+ Додати ще Post button</a>
+
+<p>Шлях до скрипта: <span id="script-path">{% static 'js/change_form.js' %}</span></p>
+<script src="{% static 'js/change_form.js' %}"></script>
+{% endblock %}
