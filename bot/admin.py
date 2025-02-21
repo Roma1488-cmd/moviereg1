@@ -21,6 +21,7 @@ class PostMediaInline(admin.TabularInline):
     model = PostMedia
     fields = ('media_type', 'media_file')
     extra = 1
+    classes = ('post-media-content',)
 
 @admin.register(DelayMessage)
 class DelayMessageAdmin(admin.ModelAdmin):
@@ -37,23 +38,24 @@ class DelayMessageAdmin(admin.ModelAdmin):
     ]
     inlines = [PostButtonInline, PostMediaInline]
 
+    def get_inline_instances(self, request, obj=None):
+        inlines = super().get_inline_instances(request, obj)
+        if obj and obj.message_type != 'media_group':
+            # Прибираємо PostMediaInline якщо тип не media_group
+            inlines = [inline for inline in inlines if not isinstance(inline, PostMediaInline)]
+        return inlines
+
     def save_model(self, request, instance, form, change):
         super().save_model(request, instance, form, change)
         
-        # Перевіряємо умови для планування
         if not instance.is_send and instance.scheduled_time > timezone.now():
-            # Додаємо затримку для точності
             adjusted_time = instance.scheduled_time + timezone.timedelta(seconds=1)
-            
-            # Імпортуємо та викликаємо функцію планування
             from .tasks import schedule_delay_message
             schedule_delay_message(instance, adjusted_time)
 
         # Відправляємо попередній перегляд
         bot = telebot.TeleBot(settings.TELEGRAM_BOT_TOKEN, parse_mode="HTML")
         chat_id = BotConfiguration.get_instance().admin_chat_id
-        text = instance.text
-        file = instance.media_file
         markup = None
 
         if instance.post_buttons.exists():
@@ -63,31 +65,77 @@ class DelayMessageAdmin(admin.ModelAdmin):
                 markup.add(InlineKeyboardButton(text=button.text, url=button.link))
 
         try:
-            if instance.message_type == "photo":
-                with file.open('rb') as photo:
-                    message = bot.send_photo(
-                        chat_id=chat_id,
-                        caption=text,
-                        photo=photo,
-                        reply_markup=markup
-                    )
-                    instance.media_id = message.photo[0].file_id
+            if instance.message_type == "media_group":
+                media_files = list(instance.post_medias.all())
+                if media_files:
+                    media_group = []
+                    for media in media_files:
+                        if not media.media_file:
+                            continue
+                        
+                        with media.media_file.open('rb') as file:
+                            content = file.read()
+                            caption = instance.text if media == media_files[0] else None
+                            
+                            if media.media_type == "photo":
+                                media_group.append(
+                                    telebot.types.InputMediaPhoto(
+                                        media=content,
+                                        caption=caption
+                                    )
+                                )
+                            elif media.media_type == "video":
+                                media_group.append(
+                                    telebot.types.InputMediaVideo(
+                                        media=content,
+                                        caption=caption
+                                    )
+                                )
+                    
+                    if media_group:
+                        bot.send_media_group(chat_id, media_group)
+                        if markup:  # Якщо є кнопки, відправляємо їх окремим повідомленням
+                            bot.send_message(chat_id, "Додаткові опції:", reply_markup=markup)
+                        else:
+                            bot.send_message(chat_id, instance.text, reply_markup=markup)
+                    else:
+                        bot.send_message(chat_id, instance.text, reply_markup=markup)
+                else:
+                    bot.send_message(chat_id, instance.text, reply_markup=markup)
+            elif instance.message_type == "photo":
+                if instance.media_file:
+                    with instance.media_file.open('rb') as photo:
+                        bot.send_photo(
+                            chat_id=chat_id,
+                            photo=photo,
+                            caption=instance.text,
+                            reply_markup=markup
+                        )
+                else:
+                    bot.send_message(chat_id, instance.text, reply_markup=markup)
             elif instance.message_type == "video":
-                with file.open('rb') as video:
-                    message = bot.send_video(
-                        chat_id=chat_id,
-                        caption=text,
-                        video=video,
-                        reply_markup=markup
-                    )
-                    instance.media_id = message.video.file_id
-            else:
-                bot.send_message(chat_id=chat_id, text=text, reply_markup=markup)
+                if instance.media_file:
+                    with instance.media_file.open('rb') as video:
+                        bot.send_video(
+                            chat_id=chat_id,
+                            video=video,
+                            caption=instance.text,
+                            reply_markup=markup
+                        )
+                else:
+                    bot.send_message(chat_id, instance.text, reply_markup=markup)
+            else:  # text
+                bot.send_message(chat_id, instance.text, reply_markup=markup)
+
         except Exception as error:
+            logger.error(f"Error in preview: {str(error)}")
             messages.add_message(request, messages.ERROR, f"❌ Помилка надсилання: {error}")
             return
 
         super().save_model(request, instance, form, change)
+
+    class Media:
+        js = ('admin/js/delay_message.js',)
 
 @admin.register(Button)
 class ButtonAdmin(admin.ModelAdmin):

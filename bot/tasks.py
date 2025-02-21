@@ -58,15 +58,17 @@ def send_scheduled_message(instance_id):
 
 
 def send_delay_message(instance_id):
+    logger.info(f"Starting send_delay_message for ID: {instance_id}")
     max_retries = 3
-    retry_delay = 2  # секунди між спробами
+    retry_delay = 2
     
     try:
         message = DelayMessage.objects.filter(id=instance_id).first()
         if not message:
-            logger.error(f"DelayMessage with ID {instance_id} doesn't exist. Perhaps it was deleted?")
+            logger.error(f"DelayMessage with ID {instance_id} doesn't exist.")
             return
 
+        logger.info(f"Found message: {message.message_type} scheduled for {message.scheduled_time}")
         bot_config = BotConfiguration.get_instance()
         markup = create_markup(message)
 
@@ -75,8 +77,62 @@ def send_delay_message(instance_id):
 
         for attempt in range(max_retries):
             try:
-                if message.message_type == "text":
-                    bot.send_message(bot_config.channel_id, message.text, reply_markup=markup)
+                if message.message_type == "media_group":
+                    media_files = list(message.post_medias.all())
+                    logger.info(f"Found {len(media_files)} media files in group")
+                    
+                    if media_files:
+                        media_contents = []
+                        media_group = []
+                        
+                        for media in media_files:
+                            if not media.media_file:
+                                logger.warning(f"Skipping empty media file")
+                                continue
+                                
+                            try:
+                                with media.media_file.open('rb') as file:
+                                    content = file.read()
+                                    media_contents.append({
+                                        'content': content,
+                                        'type': media.media_type,
+                                        'caption': message.text if media == media_files[0] else None
+                                    })
+                                    logger.info(f"Read file: {media.media_file.name}, size: {len(content)} bytes")
+                            except Exception as e:
+                                logger.error(f"Error reading media file: {str(e)}")
+                                continue
+                        
+                        for media_content in media_contents:
+                            if media_content['type'] == "photo":
+                                media_group.append(
+                                    telebot.types.InputMediaPhoto(
+                                        media=media_content['content'],
+                                        caption=media_content['caption']
+                                    )
+                                )
+                            elif media_content['type'] == "video":
+                                media_group.append(
+                                    telebot.types.InputMediaVideo(
+                                        media=media_content['content'],
+                                        caption=media_content['caption']
+                                    )
+                                )
+                        
+                        if media_group:
+                            logger.info(f"Sending media group with {len(media_group)} items")
+                            # Спочатку відправляємо медіа групу
+                            bot.send_media_group(bot_config.channel_id, media_group)
+                            logger.info("Media group sent successfully")
+                            # Потім відправляємо кнопки окремим повідомленням, якщо вони є
+                            if markup:
+                                bot.send_message(bot_config.channel_id, "Додаткові опції:", reply_markup=markup)
+                        else:
+                            logger.warning("No valid media files to send")
+                            bot.send_message(bot_config.channel_id, message.text, reply_markup=markup)
+                    else:
+                        logger.warning("No media files found")
+                        bot.send_message(bot_config.channel_id, message.text, reply_markup=markup)
                     break
                 
                 elif message.message_type in ["photo", "video"]:
@@ -106,66 +162,19 @@ def send_delay_message(instance_id):
                         )
                     break
                 
-                elif message.message_type == "media_group":
-                    media_files = list(message.post_medias.all())
-                    if media_files:
-                        media_group = []
-                        for media in media_files:
-                            if not media.media_file:
-                                logger.warning(f"Skipping media file - no file provided")
-                                continue
-                            
-                            try:
-                                with media.media_file.open('rb') as file:
-                                    file_content = file.read()
-                                    
-                                    logger.info(f"File size: {len(file_content)} bytes")
-                                    logger.info(f"File path: {media.media_file.path}")
-
-                                if media.media_type == "photo":
-                                    media_group.append(
-                                        telebot.types.InputMediaPhoto(
-                                            media=file_content,
-                                            caption=media.content if media == media_files[0] else None
-                                        )
-                                    )
-                                elif media.media_type == "video":
-                                    media_group.append(
-                                        telebot.types.InputMediaVideo(
-                                            media=file_content,
-                                            caption=media.content if media == media_files[0] else None
-                                        )
-                                    )
-                            except Exception as e:
-                                logger.error(f"Error processing media file: {str(e)}")
-                                continue
-                                
-                        if media_group:
-                            bot.send_media_group(bot_config.channel_id, media_group)
-                        else:
-                            logger.warning("No valid media files found in media group")
-                            bot.send_message(bot_config.channel_id, message.text, reply_markup=markup)
-                    else:
-                        logger.warning("No media files found for media group message")
-                        bot.send_message(bot_config.channel_id, message.text, reply_markup=markup)
+                else:  # text
+                    bot.send_message(bot_config.channel_id, message.text, reply_markup=markup)
                     break
-                
-                logger.info(f"Message successfully sent to channel {bot_config.channel_id}")
                 
             except (ApiException, RequestException, ConnectionError) as e:
                 logger.error(f"Attempt {attempt + 1}/{max_retries} failed: {str(e)}")
-                if attempt < max_retries - 1:  # якщо це не остання спроба
+                if attempt < max_retries - 1:
                     time.sleep(retry_delay)
                     continue
-                raise  # якщо всі спроби невдалі, піднімаємо помилку далі
-                
-            except Exception as e:
-                logger.error(f"Unexpected error: {str(e)}")
                 raise
                 
     except Exception as e:
         logger.error(f"Failed to process delay message: {str(e)}")
-        # Спробуємо відправити хоча б текст
         try:
             bot.send_message(
                 bot_config.channel_id,

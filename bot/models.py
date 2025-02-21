@@ -21,7 +21,7 @@ class PostMedia(models.Model):
         verbose_name_plural = "Post Medias"
 
     def __str__(self):
-        return self.media_type
+        return f"{self.media_type} - {self.media_file.name if self.media_file else 'No file'}"
 
 
 class PostButton(models.Model):
@@ -161,6 +161,16 @@ class DelayMessage(models.Model):
     class Meta:
         verbose_name = "Delay Message"
         verbose_name_plural = "Delay Messages"
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        # Очищаємо непотрібні дані при зміні типу
+        if self.message_type != 'media_group':
+            # Видаляємо всі пов'язані медіа файли
+            self.post_medias.all().delete()
+        if self.message_type == 'text':
+            # Очищаємо поле media_file для текстових повідомлень
+            self.media_file = None
 
     def __str__(self):
         return f"{self.message_type} message (delay) scheduled for {self.scheduled_time}"
