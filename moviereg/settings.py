@@ -28,7 +28,11 @@ DEBUG = True
 TIME_ZONE = 'Europe/Kiev'  # Встановіть ваш часовий пояс
 USE_TZ = True
 
+<<<<<<< HEAD
 ALLOWED_HOSTS = ['*']
+=======
+ALLOWED_HOSTS = ['45.132.107.197']
+>>>>>>> 0c1442058d82a6a6f0d19b40afcd1053eff46e03
 
 # Application definition
 INSTALLED_APPS = [
